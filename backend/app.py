@@ -23,13 +23,13 @@ from fastapi.middleware.cors import CORSMiddleware
 import aiofiles
 
 # Import our business logic services
-from services import (
+from backend.services import (
     OCRProcessingService, 
     ExpenseManager, 
     DraftManager, 
     CategoryManager
 )
-from database import DatabaseManager
+from backend.database import DatabaseManager
 
 # ============================================================================
 # APPLICATION CONFIGURATION & SETUP

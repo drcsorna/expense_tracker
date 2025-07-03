@@ -214,7 +214,12 @@
                     </h3>
                     <p class="text-sm text-gray-600 mt-1">Edit or confirm expense details</p>
                 </div>
-                <button class="edit-modal-close">×</button>
+                <div class="flex items-center gap-3">
+                    <button type="submit" id="modal-save-btn" form="expense-form" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium disabled:opacity-50">
+                        <span id="modal-save-btn-text">💾 Save</span>
+                    </button>
+                    <button class="edit-modal-close">×</button>
+                </div>
             </div>
             
             <div class="edit-modal-body">
@@ -228,16 +233,6 @@
                     
                     <!-- Form content populated by JavaScript -->
                     <div id="form-content"></div>
-                    
-                    <!-- Form Actions -->
-                    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-6 rounded-lg transition-colors font-medium" id="cancel-form-btn">
-                            Cancel
-                        </button>
-                        <button type="submit" id="modal-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-colors font-medium disabled:opacity-50">
-                            <span id="modal-save-btn-text">💾 Save</span>
-                        </button>
-                    </div>
                 </form>
             </div>
         </div>

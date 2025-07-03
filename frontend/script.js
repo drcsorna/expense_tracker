@@ -931,6 +931,7 @@ class ExpenseTrackerApp {
     async editDraft(draftId) {
         try {
             const draftData = await this.apiService.getDraft(draftId);
+            this.showEditModal(); 
             this.populateEditForm(draftData, 'draft');
         } catch (error) {
             console.error(`Failed to load draft ${draftId}:`, error);
@@ -1012,6 +1013,7 @@ class ExpenseTrackerApp {
     async editExpense(expenseId) {
         try {
             const expense = await this.apiService.getExpense(expenseId);
+            this.showEditModal(); 
             this.populateEditForm(expense, 'expense');
         } catch (error) { 
             console.error('Edit expense error:', error);
