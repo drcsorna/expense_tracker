@@ -1,0 +1,355 @@
+# Expense Tracker - Docker Compose Configuration
+#
+# PURPOSE: Multi-environment Docker orchestration for development and production
+# SCOPE: Complete containerized setup with data persistence and networking
+# CONTEXT: Works for both local development and production deployment
+#
+# AI CONTEXT: This file provides Docker Compose configurations for different environments.
+# Use this for consistent development setup and production deployment.
+# When modifying, consider data persistence, networking, and scaling requirements.
+#
+# USAGE:
+# Development: docker-compose up -d
+# Production: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Testing: docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit
+#
+# FEATURES:
+# - Environment-specific configurations
+# - Data persistence with named volumes
+# - Health checks and restart policies
+# - Network isolation and port mapping
+# - Development hot-reload support
+
+version: '3.8'
+
+# ============================================================================
+# SERVICES CONFIGURATION
+# ============================================================================
+
+services:
+  # Main application service
+  expense-tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development  # Override in production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-}
+        VERSION: ${VERSION:-1.0.0}
+        VCS_REF: ${VCS_REF:-}
+    
+    container_name: expense-tracker-app
+    
+    # Port mapping (host:container)
+    ports:
+      - "${HOST_PORT:-8000}:8000"
+    
+    # Environment variables
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DATABASE_URL=sqlite:///app/data/expenses.db
+      - UPLOAD_MAX_SIZE=${UPLOAD_MAX_SIZE:-10485760}  # 10MB
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
+    
+    # Volume mounts for data persistence and development
+    volumes:
+      # Data persistence
+      - expense-data:/app/data
+      - expense-logs:/app/logs
+      
+      # Development hot-reload (commented out for production)
+      - ./backend:/app/backend:ro
+      - ./frontend:/app/frontend:ro
+    
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Resource limits (adjust based on needs)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Network configuration
+    networks:
+      - expense-network
+    
+    # Dependencies (if any external services are added)
+    depends_on:
+      - db-backup  # Optional backup service
+
+  # Database backup service (optional but recommended)
+  db-backup:
+    image: alpine:3.18
+    container_name: expense-tracker-backup
+    
+    volumes:
+      - expense-data:/data:ro
+      - ./backups:/backups
+    
+    # Backup command (runs daily)
+    command: >
+      sh -c "
+        echo 'Setting up daily backup cron job...'
+        mkdir -p /backups
+        (crontab -l 2>/dev/null; echo '0 2 * * * cp /data/expenses.db /backups/expenses-$$(date +%Y%m%d).db && find /backups -name \"expenses-*.db\" -mtime +7 -delete') | crontab -
+        crond -f
+      "
+    
+    restart: unless-stopped
+    networks:
+      - expense-network
+
+  # Optional: Reverse proxy for production (Nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: expense-tracker-nginx
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - nginx-cache:/var/cache/nginx
+    
+    depends_on:
+      - expense-tracker
+    
+    restart: unless-stopped
+    networks:
+      - expense-network
+    
+    # Only start in production
+    profiles:
+      - production
+
+# ============================================================================
+# VOLUMES CONFIGURATION
+# ============================================================================
+
+volumes:
+  # Application data (SQLite database, uploaded images)
+  expense-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}
+  
+  # Application logs
+  expense-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${LOGS_PATH:-./logs}
+  
+  # Nginx cache (production only)
+  nginx-cache:
+    driver: local
+
+# ============================================================================
+# NETWORKS CONFIGURATION
+# ============================================================================
+
+networks:
+  expense-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+---
+# ============================================================================
+# PRODUCTION OVERRIDE (docker-compose.prod.yml)
+# ============================================================================
+
+# Create this file separately for production overrides:
+#
+# version: '3.8'
+# services:
+#   expense-tracker:
+#     build:
+#       target: production
+#     environment:
+#       - ENVIRONMENT=production
+#       - DEBUG=false
+#       - LOG_LEVEL=warning
+#     volumes:
+#       # Remove development hot-reload volumes
+#       - expense-data:/app/data
+#       - expense-logs:/app/logs
+#     deploy:
+#       resources:
+#         limits:
+#           memory: 1G
+#           cpus: '1.0'
+#       replicas: 2  # For load balancing
+#
+#   nginx:
+#     profiles: []  # Enable nginx in production
+
+---
+# ============================================================================
+# DEVELOPMENT OVERRIDE (docker-compose.dev.yml)
+# ============================================================================
+
+# Create this file separately for development-specific settings:
+#
+# version: '3.8'
+# services:
+#   expense-tracker:
+#     build:
+#       target: development
+#     environment:
+#       - ENVIRONMENT=development
+#       - DEBUG=true
+#       - LOG_LEVEL=debug
+#     volumes:
+#       # Enable hot-reload for development
+#       - ./backend:/app/backend
+#       - ./frontend:/app/frontend
+#       - expense-data:/app/data
+#     command: ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+#
+#   # Development database browser
+#   adminer:
+#     image: adminer
+#     ports:
+#       - "8080:8080"
+#     environment:
+#       ADMINER_DEFAULT_SERVER: expense-tracker
+#     networks:
+#       - expense-network
+
+---
+# ============================================================================
+# TESTING OVERRIDE (docker-compose.test.yml)
+# ============================================================================
+
+# Create this file separately for testing:
+#
+# version: '3.8'
+# services:
+#   expense-tracker-test:
+#     build:
+#       context: .
+#       target: development
+#     environment:
+#       - ENVIRONMENT=test
+#       - DATABASE_URL=sqlite:///tmp/test_expenses.db
+#     volumes:
+#       - .:/app
+#     command: ["python", "-m", "pytest", "tests/", "-v"]
+#     networks:
+#       - expense-network
+
+---
+# ============================================================================
+# USAGE EXAMPLES AND COMMANDS
+# ============================================================================
+
+# DEVELOPMENT SETUP:
+# 1. Copy environment file: cp .env.example .env
+# 2. Create directories: mkdir -p data logs backups
+# 3. Start services: docker-compose up -d
+# 4. View logs: docker-compose logs -f expense-tracker
+# 5. Stop services: docker-compose down
+
+# PRODUCTION DEPLOYMENT:
+# 1. Set production environment: export ENVIRONMENT=production
+# 2. Build production image: docker-compose build --target production
+# 3. Start with production config: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# 4. Monitor: docker-compose ps && docker-compose logs
+
+# MAINTENANCE COMMANDS:
+# - Update containers: docker-compose pull && docker-compose up -d
+# - View resource usage: docker stats
+# - Backup database: docker-compose exec expense-tracker cp /app/data/expenses.db /app/data/backup.db
+# - Restore database: docker-compose exec expense-tracker cp /app/data/backup.db /app/data/expenses.db
+
+# SCALING (Production):
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --scale expense-tracker=3
+
+# CLEANUP:
+# docker-compose down -v  # Removes containers and volumes
+# docker system prune -a  # Removes all unused Docker objects
+
+# ============================================================================
+# ENVIRONMENT VARIABLES REFERENCE
+# ============================================================================
+
+# Required variables (set in .env file):
+# - HOST_PORT: Port to expose on host (default: 8000)
+# - ENVIRONMENT: deployment environment (development/production)
+# - DATA_PATH: Host path for data persistence
+# - LOGS_PATH: Host path for log files
+
+# Optional variables:
+# - DEBUG: Enable debug mode (true/false)
+# - LOG_LEVEL: Logging level (debug/info/warning/error)
+# - UPLOAD_MAX_SIZE: Maximum upload file size in bytes
+# - CORS_ORIGINS: Allowed CORS origins (* for development)
+# - BUILD_DATE: Build timestamp for image metadata
+# - VERSION: Application version for image metadata
+# - VCS_REF: Git commit hash for image metadata
+
+# ============================================================================
+# AI DEVELOPMENT NOTES
+# ============================================================================
+
+# EXTENDING THE COMPOSE FILE:
+# 1. Add new services (Redis, PostgreSQL, monitoring)
+# 2. Configure service dependencies and health checks
+# 3. Implement secrets management for production
+# 4. Add monitoring services (Prometheus, Grafana)
+# 5. Configure log aggregation (ELK stack, Fluentd)
+
+# SCALING PATTERNS:
+# - Horizontal scaling with multiple app instances
+# - Load balancing with Nginx or Traefik
+# - Database clustering for high availability
+# - Caching layers for performance improvement
+
+# SECURITY CONSIDERATIONS:
+# - Use Docker secrets for sensitive data
+# - Implement network segmentation
+# - Regular security updates for base images
+# - HTTPS termination at reverse proxy
+# - Rate limiting and DDoS protection
+
+# MONITORING AND OBSERVABILITY:
+# - Health checks for all services
+# - Log aggregation and analysis
+# - Metrics collection and alerting
+# - Distributed tracing for complex deployments
+# - Performance monitoring and optimization
+
+# BACKUP AND DISASTER RECOVERY:
+# - Automated database backups
+# - Volume snapshots for data protection
+# - Multi-region deployment for disaster recovery
+# - Backup verification and restoration testing

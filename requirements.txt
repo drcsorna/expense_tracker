@@ -1,0 +1,135 @@
+# Expense Tracker - Python Dependencies
+#
+# PURPOSE: Complete list of Python packages required for the expense tracker
+# SCOPE: Production-ready dependencies with specific versions for stability
+# CONTEXT: Works for both development (remote VS Code) and Docker deployment
+#
+# AI CONTEXT: This file contains all Python dependencies needed to run the application.
+# When adding new features that require additional packages, add them here with version constraints.
+# Use `pip install -r requirements.txt` to install all dependencies.
+#
+# DEPLOYMENT: Used by both development setup and Docker builds
+# VERSIONING: Pinned versions for production stability, but allows patch updates
+
+# ============================================================================
+# WEB FRAMEWORK AND SERVER
+# ============================================================================
+
+# FastAPI - Modern, fast web framework for building APIs
+fastapi==0.104.1
+
+# Uvicorn - ASGI server for FastAPI
+uvicorn[standard]==0.24.0
+
+# HTTPX - HTTP client for external API calls (exchange rates)
+httpx==0.25.2
+
+# Python Multipart - Form data handling for file uploads
+python-multipart==0.0.6
+
+# ============================================================================
+# DATABASE AND ASYNC OPERATIONS
+# ============================================================================
+
+# Aiosqlite - Async SQLite database operations
+aiosqlite==0.19.0
+
+# Aiofiles - Async file operations
+aiofiles==23.2.0
+
+# ============================================================================
+# IMAGE PROCESSING AND OCR
+# ============================================================================
+
+# Pillow - Python Imaging Library for image manipulation
+Pillow==10.1.0
+
+# OpenCV - Computer vision library for image preprocessing
+opencv-python==4.8.1.78
+
+# PyTesseract - Python wrapper for Tesseract OCR engine
+pytesseract==0.3.10
+
+# NumPy - Numerical computing (required by OpenCV)
+numpy==1.25.2
+
+# ============================================================================
+# DEVELOPMENT AND TESTING (Optional but recommended)
+# ============================================================================
+
+# Pytest - Testing framework
+pytest==7.4.3
+
+# Pytest-asyncio - Async testing support
+pytest-asyncio==0.21.1
+
+# Black - Code formatting
+black==23.11.0
+
+# Flake8 - Code linting
+flake8==6.1.0
+
+# ============================================================================
+# PRODUCTION DEPLOYMENT (Optional)
+# ============================================================================
+
+# Gunicorn - WSGI server for production deployment
+gunicorn==21.2.0
+
+# ============================================================================
+# SYSTEM DEPENDENCIES NOTES
+# ============================================================================
+
+# The following system packages are required but installed via package manager:
+#
+# For Ubuntu/Debian:
+# sudo apt-get update
+# sudo apt-get install -y \
+#     tesseract-ocr \
+#     tesseract-ocr-eng \
+#     tesseract-ocr-nld \
+#     libgl1-mesa-glx \
+#     libglib2.0-0 \
+#     libsm6 \
+#     libxext6 \
+#     libxrender-dev \
+#     libgomp1
+#
+# For Alpine Linux (Docker):
+# apk add --no-cache \
+#     tesseract-ocr \
+#     tesseract-ocr-data-eng \
+#     tesseract-ocr-data-nld \
+#     libgomp
+#
+# For macOS:
+# brew install tesseract tesseract-lang
+#
+# For Windows:
+# Download Tesseract installer from: https://github.com/UB-Mannheim/tesseract/wiki
+
+# ============================================================================
+# AI DEVELOPMENT NOTES
+# ============================================================================
+
+# ADDING NEW DEPENDENCIES:
+# 1. Add package with version constraint (e.g., package>=1.0.0,<2.0.0)
+# 2. Test in development environment first
+# 3. Update Dockerfile if system dependencies are needed
+# 4. Document any special installation requirements
+# 5. Consider security implications of new packages
+
+# VERSION PINNING STRATEGY:
+# - Major versions pinned for stability
+# - Minor versions allowed for bug fixes
+# - Critical security packages may need frequent updates
+
+# DEPENDENCY MANAGEMENT:
+# - Use pip-tools for lock file generation in production
+# - Regular security audits with pip-audit
+# - Keep dependencies minimal for smaller Docker images
+
+# COMPATIBILITY:
+# - Python 3.8+ required
+# - All packages tested on Linux/Docker environment
+# - Cross-platform compatibility maintained where possible

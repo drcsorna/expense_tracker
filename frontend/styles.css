@@ -1,0 +1,1482 @@
+/*
+Expense Tracker - Complete Application Styles
+
+PURPOSE: All visual styling for the expense tracker application
+SCOPE: ~600 lines - Complete styling with responsive design and modern UI
+DEPENDENCIES: Tailwind CSS (CDN), modern CSS features
+
+AI CONTEXT: This is the complete stylesheet for the application.
+Modern, responsive design with Tailwind-inspired utilities and custom components.
+When working on UI/UX issues or visual improvements, this is your primary file.
+
+FEATURES:
+- Responsive design (mobile-first approach)
+- Modern UI components (glassmorphism, animations)
+- Tailwind-inspired utility classes
+- Component-specific styling
+- Dark mode ready (future enhancement)
+- Accessibility considerations (contrast, focus states)
+
+ORGANIZATION:
+1. CSS Reset and Base Styles
+2. Control Components (segmented controls, category buttons)
+3. Form Elements and Layout
+4. Modal and Overlay Systems
+5. Item Lists and Bulk Actions
+6. Responsive Design (mobile adaptations)
+7. Utility Classes and Animations
+
+DEPLOYMENT: Works in both development and production environments
+COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
+*/
+
+/* ============================================================================
+   CSS RESET AND TAILWIND SUPPRESSIONS
+   ============================================================================ */
+
+/* Suppress Tailwind CSS production warning in development */
+.tailwind-dev-warning {
+    display: none !important;
+}
+
+/* ============================================================================
+   MODERN CONTROL COMPONENTS
+   ============================================================================ */
+
+/**
+ * Segmented Controls - Modern iOS-style segmented controls
+ * 
+ * AI CONTEXT: Used for person/beneficiary selection with sliding animation.
+ * Provides visual feedback and modern interaction patterns.
+ */
+/* Replace the @apply sections in your styles.css with these: */
+
+/* Control Group - Lines ~53-70 */
+.control-group {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background-color: #f3f4f6;
+    padding: 0.25rem;
+    border-radius: 0.75rem;
+}
+
+.control-group input[type="radio"] { 
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.control-button {
+    position: relative;
+    flex: 1 1 0%;
+    text-align: center;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition-property: color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    z-index: 10;
+}
+
+.control-group input[type="radio"]:checked + .control-button {
+    color: #ffffff;
+}
+
+.control-group .glider {
+    position: absolute;
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 0.5rem;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+    box-shadow: 0 2px 10px -1px rgba(59, 130, 246, 0.5);
+    z-index: 5;
+}
+
+/**
+ * Segmented Controls - Enhanced version with sliding background
+ * 
+ * AI CONTEXT: More sophisticated version with better animations.
+ * Used for primary selections like who paid for the expense.
+ */
+.segmented-control {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+.segmented-control input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.segmented-control input[type="radio"]:checked + .segmented-option {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.segmented-option {
+    display: block;
+    cursor: pointer;
+    background-color: transparent;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #64748b;
+    text-align: center;
+    transition: color 0.15s ease;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: nowrap;
+    user-select: none;
+    min-width: 60px;
+    position: relative;
+    z-index: 2;
+}
+
+.segmented-option:hover {
+    color: #475569;
+}
+
+/* Sliding background animation */
+.segmented-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    height: calc(100% - 4px);
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+    opacity: 0;
+}
+
+.segmented-control.has-selection .segmented-slider {
+    opacity: 1;
+}
+
+/* ============================================================================
+   FORM LAYOUT AND COMPONENTS
+   ============================================================================ */
+
+/**
+ * Three Column Layout for Main Form Section
+ * 
+ * AI CONTEXT: Primary layout for expense form with responsive breakpoints.
+ * Optimizes screen real estate while maintaining readability.
+ */
+.three-column-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+/**
+ * Two Column Layout for Categories and Controls
+ * 
+ * AI CONTEXT: Secondary layout for categories and control elements.
+ * Provides clear separation between different input types.
+ */
+.two-column-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+/**
+ * Form Groups and Input Styling
+ * 
+ * AI CONTEXT: Consistent form element styling throughout the application.
+ * Follows modern design patterns with focus states and validation feedback.
+ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    line-height: 1.5;
+    height: 42px;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-select {
+    background-color: #f9fafb;
+    cursor: pointer;
+}
+
+.form-textarea {
+    resize: vertical;
+    height: 80px;
+    padding-top: 8px;
+}
+
+/* ============================================================================
+   SPECIALIZED FORM COMPONENTS
+   ============================================================================ */
+
+/**
+ * Date Warning System
+ * 
+ * AI CONTEXT: Visual feedback for relative dates detected in OCR.
+ * Alerts users when OCR detects ambiguous dates like "today" or "yesterday".
+ */
+.date-warning {
+    background-color: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.date-warning-icon {
+    font-size: 14px;
+}
+
+.form-input.has-warning {
+    border-color: #f59e0b;
+    background-color: #fffbeb;
+}
+
+/**
+ * FX Rate Display Component
+ * 
+ * AI CONTEXT: Shows exchange rates and EUR conversion for non-EUR expenses.
+ * Provides transparency in currency conversion calculations.
+ */
+.fx-rate-display {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 13px;
+    height: 80px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fx-rate-title {
+    font-weight: 500;
+    color: #1e40af;
+    margin-bottom: 4px;
+}
+
+.fx-rate-value {
+    color: #1d4ed8;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.eur-amount {
+    font-weight: 600;
+    color: #1e40af;
+    margin-left: 8px;
+}
+
+/**
+ * Receipt Image Preview
+ * 
+ * AI CONTEXT: Fixed-height image preview for uploaded receipts.
+ * Maintains aspect ratio while providing consistent layout.
+ */
+.receipt-preview {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    background-color: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 180px;
+    overflow: hidden;
+}
+
+.receipt-preview:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.receipt-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.receipt-placeholder {
+    text-align: center;
+    color: #6b7280;
+}
+
+.receipt-placeholder svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 8px;
+    color: #9ca3af;
+}
+
+/* ============================================================================
+   CATEGORY CONTROLS
+   ============================================================================ */
+
+/**
+ * Category Selection with Multi-Row Support
+ * 
+ * AI CONTEXT: Flexible category buttons that wrap to multiple rows.
+ * Supports dynamic category lists and user-added categories.
+ */
+.category-control {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.category-segment {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid #e2e8f0;
+    position: relative;
+}
+
+.category-segment input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.category-segment input[type="radio"]:checked + .category-option {
+    color: #ffffff !important;
+    font-weight: 500;
+    background-color: #3b82f6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.category-option {
+    display: block;
+    cursor: pointer;
+    background-color: transparent;
+    padding: 8px 14px;
+    border-radius: 6px;
+    color: #374151 !important;
+    text-align: center;
+    transition: all 0.15s ease;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    user-select: none;
+    min-width: 60px;
+    position: relative;
+    z-index: 2;
+}
+
+.category-option:hover {
+    color: #1f2937 !important;
+    background-color: #e2e8f0;
+}
+
+.category-segment input[type="radio"]:checked + .category-option:hover {
+    color: #ffffff !important;
+    background-color: #3b82f6;
+}
+
+.category-slider {
+    display: none;
+}
+
+/* ============================================================================
+   MODAL AND OVERLAY SYSTEMS
+   ============================================================================ */
+
+/**
+ * Edit Modal - Primary expense editing interface
+ * 
+ * AI CONTEXT: Main modal for editing expenses and confirming drafts.
+ * Full-screen on mobile, centered overlay on desktop.
+ */
+.edit-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.edit-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.edit-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 95vw;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    padding: 0;
+}
+
+.edit-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 16px 16px 0 0;
+}
+
+.edit-modal-body {
+    padding: 24px;
+}
+
+.edit-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.edit-modal-close:hover {
+    color: #374151;
+    background-color: #f3f4f6;
+}
+
+/**
+ * Image Overlay - Full-screen image viewing
+ * 
+ * AI CONTEXT: Modal for viewing receipt images at full resolution.
+ * Provides zoom capabilities and smooth transitions.
+ */
+.image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.image-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-overlay-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+}
+
+.image-overlay img {
+    display: block;
+}
+
+.image-overlay-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1001;
+}
+
+.image-overlay-close:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+/**
+ * General Modal System
+ * 
+ * AI CONTEXT: Reusable modal system for various dialogs.
+ * Used for confirmations, category additions, and all items view.
+ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 95vw;
+    max-width: 1200px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 4px;
+}
+
+.modal-close:hover {
+    color: #374151;
+}
+
+/* ============================================================================
+   ITEM LISTS AND BULK ACTIONS
+   ============================================================================ */
+
+/**
+ * Item Rows - Common styling for expenses and drafts
+ * 
+ * AI CONTEXT: Consistent styling for list items throughout the application.
+ * Supports selection states, error states, and interactive elements.
+ */
+.item-row {
+    position: relative;
+    transition: all 0.2s ease;
+    padding-left: 2rem; /* Space for the selector */
+    background: white;
+    border-radius: 6px;
+    border: 1px solid rgba(209, 213, 219, 0.8);
+    padding: 6px 8px;
+    padding-left: 2rem;
+    cursor: pointer;
+}
+
+.item-row:hover {
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.item-row.selected {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px #3b82f6 inset;
+}
+
+/* Error state for drafts with validation issues */
+.item-row.has-error {
+    background: #fffbeb !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 1px #f59e0b inset;
+}
+
+.item-row.has-error:hover {
+    border-color: #d97706;
+    box-shadow: 0 0 0 1px #d97706 inset;
+}
+
+.error-indicator {
+    color: #f59e0b;
+    font-size: 14px;
+    margin-left: 4px;
+}
+
+.clear-error-btn {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #f59e0b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clear-error-btn:hover {
+    background: #fbbf24;
+    color: white;
+}
+
+/**
+ * Item Selection System
+ * 
+ * AI CONTEXT: Interactive selection for bulk operations.
+ * Provides visual feedback and smooth animations.
+ */
+.item-selector {
+    position: absolute;
+    left: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    opacity: 0;
+    z-index: 10;
+}
+
+.item-row:hover .item-selector {
+    opacity: 1;
+}
+
+.item-row.selected .item-selector {
+    opacity: 1;
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.item-selector svg {
+    color: white;
+    stroke-width: 3;
+    width: 0.6rem;
+    height: 0.6rem;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+}
+
+.item-row.selected .item-selector svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/**
+ * Action Buttons for Item Rows
+ * 
+ * AI CONTEXT: Compact action buttons for each list item.
+ * Consistent styling across different item types.
+ */
+.item-actions {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.expense-actions {
+    grid-template-columns: repeat(3, auto);
+}
+
+.action-btn {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+
+.action-btn.confirm {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+
+.action-btn.confirm:hover {
+    background: #bbf7d0;
+    border-color: #86efac;
+}
+
+.action-btn.edit {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.action-btn.edit:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.action-btn.history {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+.action-btn.history:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+}
+
+.action-btn.delete {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.action-btn.delete:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+/**
+ * Bulk Actions Interface
+ * 
+ * AI CONTEXT: Appears when items are selected for bulk operations.
+ * Provides count feedback and action buttons.
+ */
+.bulk-actions {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.bulk-actions.show {
+    display: flex;
+}
+
+.bulk-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.bulk-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.bulk-btn {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: 1px solid;
+    cursor: pointer;
+}
+
+.bulk-btn.select-all {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.bulk-btn.select-all:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.bulk-btn.deselect-all {
+    background: #f59e0b;
+    color: white;
+    border-color: #f59e0b;
+}
+
+.bulk-btn.deselect-all:hover {
+    background: #d97706;
+    border-color: #d97706;
+}
+
+.bulk-btn.clear {
+    background: #6b7280;
+    color: white;
+    border-color: #6b7280;
+}
+
+.bulk-btn.clear:hover {
+    background: #4b5563;
+    border-color: #4b5563;
+}
+
+.bulk-btn.delete {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.bulk-btn.delete:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.bulk-btn.confirm {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+}
+
+.bulk-btn.confirm:hover {
+    background: #047857;
+    border-color: #047857;
+}
+
+/* ============================================================================
+   FILTER CONTROLS
+   ============================================================================ */
+
+/**
+ * Filter Interface
+ * 
+ * AI CONTEXT: Collapsible filter controls for list views.
+ * Supports multiple filter types with grid layout.
+ */
+.filter-controls {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.filter-controls.show {
+    display: block;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.filter-input, .filter-select {
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 12px;
+    height: 28px;
+}
+
+.filter-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.filter-btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.apply {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.filter-btn.apply:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.filter-btn.clear {
+    background: #6b7280;
+    color: white;
+    border-color: #6b7280;
+}
+
+.filter-btn.clear:hover {
+    background: #4b5563;
+    border-color: #4b5563;
+}
+
+.filter-btn.toggle {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.filter-btn.toggle:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+/* ============================================================================
+   ERROR STATES AND VALIDATION
+   ============================================================================ */
+
+/**
+ * Form Validation and Error States
+ * 
+ * AI CONTEXT: Visual feedback for form validation errors.
+ * Provides clear indication of required fields and validation issues.
+ */
+.error-state {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* ============================================================================
+   LOADING STATES AND ANIMATIONS
+   ============================================================================ */
+
+/**
+ * Loading States and Spinners
+ * 
+ * AI CONTEXT: Visual feedback during async operations.
+ * Prevents user interaction during processing states.
+ */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f4f6;
+    border-radius: 50%;
+    border-top-color: #3b82f6;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   AUDIT HISTORY STYLING
+   ============================================================================ */
+
+/**
+ * Audit History Components
+ * 
+ * AI CONTEXT: Specialized styling for audit trail display.
+ * Color-coded by operation type with detailed change tracking.
+ */
+.audit-entry {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+.audit-entry.insert {
+    border-left: 4px solid #10b981;
+    background: #f0fdf4;
+}
+
+.audit-entry.update {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+}
+
+.audit-entry.delete {
+    border-left: 4px solid #ef4444;
+    background: #fef2f2;
+}
+
+.audit-operation {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.audit-operation.insert {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.audit-operation.update {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.audit-operation.delete {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.audit-changes {
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.audit-change-item {
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.audit-change-label {
+    font-weight: 500;
+    color: #374151;
+    text-transform: capitalize;
+}
+
+.audit-change-values {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    font-family: monospace;
+}
+
+.audit-old-value {
+    background: #fef2f2;
+    color: #991b1b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-decoration: line-through;
+}
+
+.audit-new-value {
+    background: #f0fdf4;
+    color: #166534;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.audit-arrow {
+    color: #6b7280;
+}
+
+/* ============================================================================
+   UTILITY CLASSES AND LAYOUT HELPERS
+   ============================================================================ */
+
+/**
+ * Section Dividers and Layout
+ * 
+ * AI CONTEXT: Visual separation between form sections.
+ * Provides clear hierarchy and organization.
+ */
+.section-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 32px 0;
+}
+
+.section-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.control-row .form-label {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN - MOBILE OPTIMIZATIONS
+   ============================================================================ */
+
+/**
+ * Mobile-First Responsive Design
+ * 
+ * AI CONTEXT: Comprehensive mobile optimizations for all components.
+ * Ensures usability on touch devices with appropriate sizing.
+ */
+@media (max-width: 600px) {
+    /* Layout adaptations */
+    .three-column-section {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .two-column-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .control-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    /* Category controls optimization */
+    .category-control {
+        gap: 4px;
+    }
+    
+    .category-option {
+        padding: 6px 10px;
+        min-width: auto;
+        font-size: 11px;
+    }
+    
+    /* Segmented controls optimization */
+    .segmented-option {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-width: auto;
+    }
+    
+    /* Form elements */
+    .receipt-preview {
+        height: 100px;
+    }
+    
+    .form-textarea {
+        height: 50px;
+    }
+    
+    .fx-rate-display {
+        height: 50px;
+        padding: 8px;
+    }
+    
+    /* Bulk actions mobile layout */
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 6px 8px;
+    }
+    
+    .bulk-actions-left {
+        justify-content: center;
+        font-size: 11px;
+    }
+    
+    .bulk-actions-right {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .bulk-btn {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
+    
+    /* Item rows mobile optimization */
+    .item-row {
+        padding-left: 1.5rem;
+        padding: 4px 6px;
+        padding-left: 1.5rem;
+    }
+    
+    .item-selector {
+        left: 0.25rem;
+        width: 0.8rem;
+        height: 0.8rem;
+    }
+    
+    .item-selector svg {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+    
+    .item-row .flex-1 p {
+        font-size: 13px;
+    }
+    
+    .item-row .text-xs {
+        font-size: 10px;
+    }
+    
+    .item-actions {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+        gap: 2px;
+        margin-top: 4px;
+    }
+    
+    .action-btn {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+    
+    /* Filter controls mobile */
+    .filter-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .filter-input, .filter-select {
+        height: 24px;
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+    
+    .filter-label {
+        font-size: 10px;
+    }
+    
+    .filter-btn {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+    
+    /* Modal adaptations */
+    .modal-content {
+        width: 98vw;
+        height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 12px 16px;
+    }
+    
+    .modal-body {
+        padding: 16px;
+    }
+    
+    .edit-modal-content {
+        width: 98vw;
+        max-height: 95vh;
+    }
+    
+    .edit-modal-header {
+        padding: 16px 20px;
+    }
+    
+    .edit-modal-body {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screen optimizations */
+    .three-column-section {
+        gap: 12px;
+    }
+    
+    .two-column-section {
+        gap: 16px;
+    }
+    
+    .section-column {
+        gap: 12px;
+    }
+    
+    .item-row {
+        padding: 3px 4px;
+        padding-left: 1.25rem;
+    }
+    
+    .item-selector {
+        left: 0.15rem;
+        width: 0.7rem;
+        height: 0.7rem;
+    }
+    
+    .bulk-actions {
+        padding: 4px 6px;
+    }
+    
+    .filter-controls {
+        padding: 8px;
+    }
+}
+
+/* ============================================================================
+   AI DEVELOPMENT NOTES AND PATTERNS
+   ============================================================================ */
+
+/*
+AI COLLABORATION PATTERNS FOR THIS FILE:
+
+1. **Adding New Components**:
+   - Follow the established naming convention (.component-name)
+   - Include hover states and focus states for accessibility
+   - Add mobile-responsive versions in media queries
+   - Document the component purpose in comments
+
+2. **Theme Extensions**:
+   - Color variables can be added to :root for theming
+   - Dark mode support follows CSS custom properties pattern
+   - Consistent spacing using multiples of 4px (4, 8, 12, 16, 24, 32)
+
+3. **Animation Guidelines**:
+   - Use CSS transitions for state changes (0.15s - 0.3s duration)
+   - Prefer ease or cubic-bezier for natural motion
+   - Add animations for visual feedback, not decoration
+
+4. **Responsive Design**:
+   - Mobile-first approach with min-width media queries
+   - Touch-friendly sizing (44px minimum touch targets)
+   - Stack layouts vertically on small screens
+
+5. **Accessibility Considerations**:
+   - Sufficient color contrast (WCAG AA compliant)
+   - Focus states for keyboard navigation
+   - Screen reader friendly markup support
+
+PERFORMANCE CONSIDERATIONS:
+- Avoid complex selectors for better rendering performance
+- Use transform/opacity for animations (hardware accelerated)
+- Minimize repaints with efficient CSS organization
+
+BROWSER COMPATIBILITY:
+- Modern CSS features used (CSS Grid, Flexbox, Custom Properties)
+- Fallbacks provided for older browser support where needed
+- Progressive enhancement approach
+
+FUTURE ENHANCEMENTS:
+- Dark mode theme variables ready for implementation
+- Component library extraction possible
+- CSS-in-JS migration path available if needed
+*/

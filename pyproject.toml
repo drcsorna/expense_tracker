@@ -1,0 +1,53 @@
+# Expense Tracker - UV Project Configuration
+#
+# PURPOSE: Modern Python project configuration with UV package manager
+# SCOPE: Complete dependency management, build configuration, and tool settings
+# CONTEXT: Optimized for both development (remote VS Code) and Docker deployment
+#
+# AI CONTEXT: This file defines the complete Python project configuration.
+# UV provides fast, reliable dependency resolution and environment management.
+# When adding new features that require packages, use: uv add package-name
+
+[project]
+name = "expense-tracker"
+version = "0.1.0"
+description = "Personal expense tracker with OCR receipt processing and FastAPI backend"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Expense Tracker Team", email = "contact@expense-tracker.local"}
+]
+keywords = ["expense", "tracker", "ocr", "receipt", "fastapi", "finance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Topic :: Multimedia :: Graphics :: Capture :: Scanners",
+    "Framework :: FastAPI",
+]
+
+# ============================================================================
+# CORE DEPENDENCIES
+# ============================================================================
+
+dependencies = [
+    # Web Framework and Server
+    "fastapi>=0.115.14",           # Modern, fast web framework for building APIs
+    "uvicorn[standard]>=0.35.0",   # ASGI server with auto-reload and performance features
+    "python-multipart>=0.0.20",    # Form data handling for file uploads
+    "httpx>=0.28.1",               # HTTP client for external API calls (FX rates)
+    
+    # Database and Async Operations  
+    "aiosqlite>=0.20.0",           # Async SQLite database operations
+    "aiofiles>=24.1.0",            # Async file operations for better performance
+    
+    # Image Processing and OCR
+    "pillow>=11.2.1",              # Python Imaging Library for image manipulation
+    "opencv-python>=4.11.0.86",    # Computer vision library for image preprocessing
+    "easyocr>=1.7.2",             # Easy-to-use OCR library (alternative to tesseract)
+    "pytesseract>=0.3.13",         # Tesseract OCR wrapper for backup/comparison
+]
