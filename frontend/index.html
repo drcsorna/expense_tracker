@@ -9,7 +9,7 @@
     Expense Tracker - Frontend HTML Structure
     
     PURPOSE: Clean HTML structure with semantic markup and accessibility
-    SCOPE: ~150 lines - Minimal HTML, business logic in script.js
+    SCOPE: ~200 lines - Minimal HTML, business logic in script.js
     DEPENDENCIES: styles.css (styling), script.js (functionality), Tailwind CSS (CDN)
     
     AI CONTEXT: This is the main HTML structure for the expense tracker application.
@@ -67,11 +67,7 @@
     <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200/80">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    💰 Expense Tracker
-                </h1>
-                
-                <!-- Status Indicator -->
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">💰 Expense Tracker</h1>
                 <div class="flex items-center space-x-2 text-sm text-gray-600">
                     <span id="status-indicator" class="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></span>
                     <span id="status-text">Ready</span>
@@ -81,47 +77,39 @@
     </header>
 
     <!-- ============================================================================
-         MAIN APPLICATION CONTENT
+         MAIN CONTENT AREA
          ============================================================================ -->
-    
+
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- File Upload Section -->
+        <!-- FILE UPLOAD SECTION -->
         <section class="mb-8">
             <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center transition-all duration-300 hover:border-blue-400 hover:bg-blue-50/50 group">
                 <div class="space-y-4">
-                    <!-- Upload Icon -->
                     <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-blue-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
-                    
                     <p class="text-lg font-medium text-gray-700">Drop expense images here or click to upload</p>
-                    <button type="button" id="file-input-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
-                        Choose Files
-                    </button>
+                    <button type="button" id="file-input-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">Choose Files</button>
                 </div>
-                
-                <!-- Hidden file input -->
                 <input type="file" id="file-input" accept="image/*" multiple class="hidden">
             </div>
         </section>
 
-        <!-- Drafts Section (OCR Review) -->
+        <!-- DRAFTS SECTION -->
         <section id="drafts-section" class="hidden mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                    <span class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-3"></span>
-                    Drafts for Review
+                    <span class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-3"></span>Drafts for Review
                     <span id="drafts-loading" class="ml-4 hidden"><span class="spinner"></span></span>
                 </h2>
-                
                 <div class="flex items-center gap-2 mt-2 sm:mt-0">
                     <button id="toggle-draft-filters" class="filter-btn toggle">🔍 Filters</button>
                     <div id="draft-pagination-controls-top" class="flex items-center gap-2"></div>
                 </div>
             </div>
 
-            <!-- Draft Filter Controls -->
+            <!-- Draft Filters -->
             <div id="draft-filter-controls" class="filter-controls">
                 <div class="filter-grid">
                     <div class="filter-field">
@@ -159,28 +147,26 @@
                     <span id="draft-selected-count">0 selected</span>
                 </div>
                 <div class="bulk-actions-right">
-                    <button id="draft-toggle-select-btn" class="bulk-btn select-all">Select All</button>
-                    <button class="bulk-btn clear">Clear</button>
-                    <button class="bulk-btn confirm">✅ Confirm Selected</button>
-                    <button class="bulk-btn delete">🗑️ Dismiss Selected</button>
+                    <button id="draft-toggle-select-btn" class="bulk-btn select-all" onclick="expenseTracker.draftManager.toggleSelectAll()">Select All</button>
+                    <button class="bulk-btn clear" onclick="expenseTracker.draftManager.clearSelection()">Clear</button>
+                    <button class="bulk-btn confirm" onclick="expenseTracker.draftManager.confirmSelectedDrafts()">✅ Confirm Selected</button>
+                    <button class="bulk-btn delete" onclick="expenseTracker.modalManager.confirmBulkDeleteDrafts()">🗑️ Dismiss Selected</button>
                 </div>
             </div>
             
-            <!-- Draft List Container -->
+            <!-- Draft Items List -->
             <div id="drafts-list" class="space-y-1"></div>
             <div id="draft-pagination-controls-bottom" class="flex items-center justify-center gap-2 mt-4"></div>
         </section>
 
-        <!-- Recent Expenses Section -->
+        <!-- RECENT EXPENSES SECTION -->
         <section id="all-entries-section" class="mt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 class="text-xl font-semibold text-gray-800 flex items-center">
-                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-3"></span>
-                    Last 5 Entries
+                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-3"></span>Last 5 Entries
                     <span id="expenses-loading" class="ml-4 hidden"><span class="spinner"></span></span>
                 </h2>
-                
-                <button id="view-all-items-btn" class="filter-btn toggle">📋 View All Items</button>
+                <button id="view-all-items-btn" class="filter-btn toggle" onclick="expenseTracker.allItemsModal.show()">📋 View All Items</button>
             </div>
             
             <!-- Last 5 Bulk Actions -->
@@ -189,22 +175,22 @@
                     <span id="last5-selected-count">0 selected</span>
                 </div>
                 <div class="bulk-actions-right">
-                    <button id="last5-toggle-select-btn" class="bulk-btn select-all">Select All</button>
-                    <button class="bulk-btn clear">Clear</button>
-                    <button class="bulk-btn delete">🗑️ Delete Selected</button>
+                    <button id="last5-toggle-select-btn" class="bulk-btn select-all" onclick="expenseTracker.bulkManager.toggleSelectAll()">Select All</button>
+                    <button class="bulk-btn clear" onclick="expenseTracker.bulkManager.clearSelection()">Clear</button>
+                    <button class="bulk-btn delete" onclick="expenseTracker.modalManager.confirmBulkDelete()">🗑️ Delete Selected</button>
                 </div>
             </div>
             
-            <!-- Expenses List Container -->
+            <!-- Recent Expenses List -->
             <div id="expenses-list" class="space-y-1"></div>
         </section>
     </main>
 
     <!-- ============================================================================
-         MODAL AND OVERLAY CONTAINERS
+         MODAL OVERLAYS AND DIALOGS
          ============================================================================ -->
 
-    <!-- Main Edit Modal -->
+    <!-- Edit Modal Overlay -->
     <div id="edit-modal" class="edit-modal-overlay">
         <div class="edit-modal-content">
             <div class="edit-modal-header">
@@ -214,25 +200,128 @@
                     </h3>
                     <p class="text-sm text-gray-600 mt-1">Edit or confirm expense details</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button type="submit" id="modal-save-btn" form="expense-form" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium disabled:opacity-50">
-                        <span id="modal-save-btn-text">💾 Save</span>
-                    </button>
-                    <button class="edit-modal-close">×</button>
-                </div>
+                <button class="edit-modal-close" onclick="expenseTracker.modalManager.showConfirmationOverlay()">×</button>
             </div>
             
             <div class="edit-modal-body">
-                <!-- Expense Form Container (populated by JavaScript) -->
                 <form id="expense-form" class="space-y-6">
-                    <!-- Hidden form fields -->
+                    <!-- Hidden Fields -->
                     <input type="hidden" id="expense-id" name="expense_id">
                     <input type="hidden" id="draft-id" name="draft_id">
                     <input type="hidden" id="fx-rate" name="fx_rate" value="1.0">
                     <input type="hidden" id="amount-eur" name="amount_eur" value="0">
                     
-                    <!-- Form content populated by JavaScript -->
-                    <div id="form-content"></div>
+                    <!-- Three Column Section -->
+                    <div class="three-column-section">
+                        <div class="form-group">
+                            <div>
+                                <label for="date" class="form-label">Date <span class="text-red-500">*</span></label>
+                                <input type="date" id="date" name="date" required class="form-input">
+                                <div id="date-error" class="error-message hidden">Please select a valid date</div>
+                                <div id="date-warning" class="date-warning hidden">
+                                    <span class="date-warning-icon">⚠️</span>
+                                    <span id="date-warning-text"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="description" class="form-label">Description <span class="text-red-500">*</span></label>
+                                <input type="text" id="description" name="description" required class="form-input" placeholder="e.g., Coffee with team" maxlength="100">
+                                <div id="description-error" class="error-message hidden">Description is required</div>
+                            </div>
+                            <div>
+                                <label for="comments" class="form-label">Comments</label>
+                                <textarea id="comments" name="comments" class="form-textarea" rows="3" placeholder="Additional notes (optional)" maxlength="500"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div>
+                                <label for="amount" class="form-label">Amount <span class="text-red-500">*</span></label>
+                                <input type="number" id="amount" name="amount" step="0.01" min="0" required class="form-input" placeholder="0.00">
+                                <div id="amount-error" class="error-message hidden">Please enter a valid amount</div>
+                            </div>
+                            <div>
+                                <label for="currency" class="form-label">Currency <span class="text-red-500">*</span></label>
+                                <select id="currency" name="currency" required class="form-select">
+                                    <option value="EUR" selected>EUR</option>
+                                    <option value="HUF">HUF</option>
+                                    <option value="USD">USD</option>
+                                </select>
+                            </div>
+                            <div id="fx-rate-section">
+                                <label id="fx-rate-label" class="form-label hidden" style="color: #1e40af; font-weight: 500;">Exchange Rate</label>
+                                <div id="fx-rate-display" class="fx-rate-display hidden">
+                                    <div class="fx-rate-title">FX Rate & EUR Amount:</div>
+                                    <div class="fx-rate-value">
+                                        <span id="fx-rate-value"></span><span id="eur-amount-display" class="eur-amount"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div>
+                                <label class="form-label">Receipt</label>
+                                <div id="image-preview-container" class="receipt-preview" onclick="expenseTracker.imageManager.showFullImage()" title="Click to view full image">
+                                    <div id="image-placeholder" class="receipt-placeholder">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <div style="font-size: 12px;">Click to view receipt</div>
+                                    </div>
+                                    <img id="expense-image-thumb" src="" class="hidden" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section-divider"></div>
+                    
+                    <!-- Two Column Section -->
+                    <div class="two-column-section">
+                        <div class="section-column">
+                            <div>
+                                <label class="form-label">Category <span style="color: #ef4444;">*</span></label>
+                                <div id="category-buttons" class="category-control"></div>
+                                <div id="category-error" class="error-message hidden">Please select a category</div>
+                                <button type="button" id="add-category-btn" class="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">+ Add New Category</button>
+                                <input type="hidden" id="selected-category" name="category" required>
+                            </div>
+                        </div>
+                        
+                        <div class="section-column">
+                            <div class="control-row">
+                                <label class="form-label">Who Paid? <span class="text-red-500">*</span></label>
+                                <div class="segmented-control" data-group="person">
+                                    <div class="segmented-slider"></div>
+                                    <label><input type="radio" name="person" value="Ricsi" required><span class="segmented-option">👤 Ricsi</span></label>
+                                    <label><input type="radio" name="person" value="Virag" required><span class="segmented-option">👤 Virag</span></label>
+                                    <label><input type="radio" name="person" value="Közös" required checked><span class="segmented-option">🤝 Közös</span></label>
+                                </div>
+                                <div id="person-error" class="error-message hidden">Please select who paid</div>
+                            </div>
+                            
+                            <div class="control-row">
+                                <label class="form-label">For Whom? <span style="color: #6b7280;">(Optional)</span></label>
+                                <div class="segmented-control" data-group="beneficiary">
+                                    <div class="segmented-slider"></div>
+                                    <label><input type="radio" name="beneficiary" value="Ricsi"><span class="segmented-option">👤 Ricsi</span></label>
+                                    <label><input type="radio" name="beneficiary" value="Virag"><span class="segmented-option">👤 Virag</span></label>
+                                    <label><input type="radio" name="beneficiary" value="Közös"><span class="segmented-option">🤝 Közös</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Action Buttons -->
+                    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-6 rounded-lg transition-colors font-medium" onclick="expenseTracker.modalManager.showConfirmationOverlay()">
+                            Cancel
+                        </button>
+                        <button type="submit" id="modal-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-colors font-medium disabled:opacity-50">
+                            <span id="modal-save-btn-text">💾 Save</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -251,12 +340,80 @@
                         <p class="text-sm text-gray-600">Complete expense history with filtering and search</p>
                     </div>
                 </div>
-                <button class="modal-close">×</button>
+                <button class="modal-close" onclick="expenseTracker.allItemsModal.hide()">×</button>
             </div>
             
             <div class="modal-body">
-                <!-- All Items content populated by JavaScript -->
-                <div id="all-items-content"></div>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <button id="toggle-all-items-filters" class="filter-btn toggle">🔍 Filters</button>
+                        <span id="all-items-loading" class="hidden"><span class="spinner"></span></span>
+                    </div>
+                    <div id="all-items-pagination-controls-top" class="flex items-center gap-2 mt-2 sm:mt-0"></div>
+                </div>
+
+                <!-- All Items Filters -->
+                <div id="all-items-filter-controls" class="filter-controls">
+                    <div class="filter-grid">
+                        <div class="filter-field">
+                            <label class="filter-label">Description</label>
+                            <input type="text" id="all-items-filter-description" class="filter-input" placeholder="Search description...">
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Category</label>
+                            <select id="all-items-filter-category" class="filter-select">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Person</label>
+                            <select id="all-items-filter-person" class="filter-select">
+                                <option value="">All Persons</option>
+                                <option value="Ricsi">Ricsi</option>
+                                <option value="Virag">Virag</option>
+                                <option value="Közös">Közös</option>
+                            </select>
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Amount From</label>
+                            <input type="number" id="all-items-filter-amount-from" class="filter-input" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Amount To</label>
+                            <input type="number" id="all-items-filter-amount-to" class="filter-input" placeholder="999.99" step="0.01">
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Date From</label>
+                            <input type="date" id="all-items-filter-date-from" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <label class="filter-label">Date To</label>
+                            <input type="date" id="all-items-filter-date-to" class="filter-input">
+                        </div>
+                        <div class="filter-field">
+                            <div class="filter-actions">
+                                <button id="apply-all-items-filters" class="filter-btn apply">Apply</button>
+                                <button id="clear-all-items-filters" class="filter-btn clear">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- All Items Bulk Actions -->
+                <div id="all-items-bulk-actions" class="bulk-actions">
+                    <div class="bulk-actions-left">
+                        <span id="all-items-selected-count">0 selected</span>
+                    </div>
+                    <div class="bulk-actions-right">
+                        <button id="all-items-toggle-select-btn" class="bulk-btn select-all" onclick="expenseTracker.allItemsModal.toggleSelectAll()">Select All</button>
+                        <button class="bulk-btn clear" onclick="expenseTracker.allItemsModal.clearSelection()">Clear</button>
+                        <button class="bulk-btn delete" onclick="expenseTracker.allItemsModal.confirmBulkDelete()">🗑️ Delete Selected</button>
+                    </div>
+                </div>
+                
+                <!-- All Items List -->
+                <div id="all-items-list" class="space-y-1"></div>
+                <div id="all-items-pagination-controls-bottom" class="flex items-center justify-center gap-2 mt-6"></div>
             </div>
         </div>
     </div>
@@ -266,8 +423,7 @@
         <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
             <h3 class="text-lg font-semibold mb-4">Add New Category</h3>
             <form id="add-category-form">
-                <input type="text" id="new-category-name" name="name" placeholder="Category name" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4" maxlength="50">
+                <input type="text" id="new-category-name" name="name" placeholder="Category name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-4" maxlength="50">
                 <div class="flex space-x-3">
                     <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">Add</button>
                     <button type="button" id="cancel-category" class="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg">Cancel</button>
@@ -276,7 +432,7 @@
         </div>
     </div>
     
-    <!-- Confirmation Overlays -->
+    <!-- Confirmation Modal -->
     <div id="confirmation-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 transform transition-all duration-300">
             <div class="flex items-center mb-4">
@@ -290,17 +446,13 @@
             </div>
             <p id="confirmation-message" class="text-gray-700 mb-6"></p>
             <div class="flex space-x-3">
-                <button id="confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">
-                    Yes, close
-                </button>
-                <button id="confirm-no" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors font-medium">
-                    Cancel
-                </button>
+                <button id="confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">Yes, close</button>
+                <button id="confirm-no" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors font-medium">Cancel</button>
             </div>
         </div>
     </div>
     
-    <!-- Delete Confirmation -->
+    <!-- Delete Confirmation Modal -->
     <div id="delete-confirmation-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 transform transition-all duration-300">
             <div class="flex items-center mb-4">
@@ -317,9 +469,7 @@
                 <button id="delete-confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">
                     <span id="delete-confirm-text">🗑️ Delete</span>
                 </button>
-                <button id="delete-confirm-no" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors font-medium">
-                    Cancel
-                </button>
+                <button id="delete-confirm-no" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors font-medium">Cancel</button>
             </div>
         </div>
     </div>
@@ -345,7 +495,7 @@
                         <p class="text-sm text-gray-600" id="audit-expense-title">Change history for this expense</p>
                     </div>
                 </div>
-                <button class="text-gray-400 hover:text-gray-600 text-xl font-bold" id="close-audit-modal">×</button>
+                <button class="text-gray-400 hover:text-gray-600 text-xl font-bold" onclick="expenseTracker.auditManager.hideAuditHistory()">×</button>
             </div>
             
             <div class="flex-1 overflow-y-auto p-6">
@@ -359,10 +509,10 @@
         </div>
     </div>
     
-    <!-- Full-Screen Image Overlay -->
-    <div class="image-overlay" id="imageOverlay">
-        <div class="image-overlay-content">
-            <button class="image-overlay-close">&times;</button>
+    <!-- Image Overlay -->
+    <div class="image-overlay" id="imageOverlay" onclick="expenseTracker.imageManager.closeImageModal(event)">
+        <div class="image-overlay-content" onclick="event.stopPropagation()">
+            <button class="image-overlay-close" onclick="expenseTracker.imageManager.closeImageModal()">&times;</button>
             <img id="full-res-image" src="" alt="Receipt">
         </div>
     </div>
@@ -370,25 +520,8 @@
     <!-- ============================================================================
          JAVASCRIPT APPLICATION
          ============================================================================ -->
-
-    <!-- Main application script -->
-    <script src="frontend/script.js"></script>
     
-    <!-- Performance monitoring and error tracking -->
-    <script>
-        // Basic error tracking for development
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-        });
-        
-        // Performance monitoring
-        window.addEventListener('load', function() {
-            if ('performance' in window) {
-                const perfData = performance.timing;
-                const loadTime = perfData.loadEventEnd - perfData.navigationStart;
-                console.log(`Page load time: ${loadTime}ms`);
-            }
-        });
-    </script>
+    <!-- Main application JavaScript -->
+    <script src="frontend/script.js"></script>
 </body>
 </html>
