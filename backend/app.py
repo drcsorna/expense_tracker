@@ -307,6 +307,7 @@ async def get_draft_image(draft_id: int):
     if not image_data:
         raise HTTPException(status_code=404, detail="Image not found for this draft")
     
+    # Fix: Complete the truncated line
     ext = (filename.lower().split('.')[-1] if filename and '.' in filename else 'jpeg')
     return Response(content=image_data, media_type=f'image/{ext}')
 

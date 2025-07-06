@@ -568,16 +568,19 @@ class ImageManager {
         const placeholder = document.getElementById('image-placeholder');
         const thumb = document.getElementById('expense-image-thumb');
         const fullRes = document.getElementById('full-res-image');
-        const imageUrl = `./${type}/${id}/image?t=${Date.now()}`;
+        
+        // Fix: Ensure plural form for drafts
+        const endpoint = type === 'draft' ? 'drafts' : type;
+        const imageUrl = `./${endpoint}/${id}/image?t=${Date.now()}`;
         
         thumb.setAttribute('src', imageUrl);
         fullRes.setAttribute('src', imageUrl);
-
+    
         thumb.onload = () => {
             placeholder.classList.add('hidden');
             thumb.classList.remove('hidden');
         };
-
+    
         thumb.onerror = () => {
             placeholder.classList.remove('hidden');
             thumb.classList.add('hidden');
