@@ -1249,10 +1249,20 @@ class ExpenseFormManager {
         this.imageManager = imageManager;
         this.dateWarningManager = dateWarningManager;
         this.setupEventListeners();
+        this.originalFormData = null; // Track original form state
+        this.hasUnsavedChanges = false;
     }
     
     setupEventListeners() {
         document.getElementById('expense-form').addEventListener('submit', this.handleFormSubmit.bind(this));
+    }
+
+    updateSaveButtonState() {
+        const saveBtn = document.getElementById('modal-save-btn');
+        const validation = this.formValidation.validateForm();
+        
+        saveBtn.disabled = !validation.isValid;
+        saveBtn.style.opacity = validation.isValid ? '1' : '0.5';
     }
     
     setDefaultDate() { 
@@ -1306,8 +1316,100 @@ class ExpenseFormManager {
         
         expenseTracker.fxManager.handleCurrencyChange();
         this.showModal();
+
+        // Capture original form state after populating
+        setTimeout(() => {
+            this.captureOriginalFormState();
+            this.setupFormChangeTracking();
+        }, 100);
     }
     
+        
+    captureOriginalFormState() {
+        const form = document.getElementById('expense-form');
+        const formData = new FormData(form);
+        this.originalFormData = {};
+        
+        for (let [key, value] of formData.entries()) {
+            this.originalFormData[key] = value;
+        }
+        
+        // Also capture category and radio selections
+        this.originalFormData.category = document.getElementById('selected-category').value;
+        this.originalFormData.person = document.querySelector('input[name="person"]:checked')?.value || '';
+        this.originalFormData.beneficiary = document.querySelector('input[name="beneficiary"]:checked')?.value || '';
+        
+        this.hasUnsavedChanges = false;
+    }
+
+    setupFormChangeTracking() {
+        const form = document.getElementById('expense-form');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                this.markAsChanged();
+                this.updateSaveButtonState();
+            });
+            input.addEventListener('change', () => {
+                this.markAsChanged();
+                this.updateSaveButtonState();
+            });
+        });
+        
+        // Track category and radio changes
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.category-option') || e.target.closest('.segmented-option')) {
+                this.markAsChanged();
+                this.updateSaveButtonState();
+            }
+        });
+        
+        // Initial state check
+        setTimeout(() => this.updateSaveButtonState(), 100);
+    }
+    
+    markAsChanged() {
+        this.hasUnsavedChanges = true;
+    }
+
+    async smartClose() {
+        // Check if there are unsaved changes
+        if (!this.hasUnsavedChanges) {
+            // No changes - close immediately
+            this.hideModal();
+            return;
+        }
+        
+        // Has changes - auto-save and close
+        const form = document.getElementById('expense-form');
+        const expenseId = form.expense_id.value;
+        const draftId = form.draft_id.value;
+        
+        try {
+            if (draftId) {
+                // Auto-save draft changes
+                const formData = new FormData(form);
+                await this.apiService.updateDraft(draftId, formData);
+                this.notificationManager.showNotification('💾', 'Changes saved automatically', 'info');
+            } else if (expenseId) {
+                // Auto-save expense changes  
+                const formData = new FormData(form);
+                await this.apiService.updateExpense(expenseId, formData);
+                this.notificationManager.showNotification('💾', 'Changes saved automatically', 'info');
+                await expenseTracker.expenseList.loadLastFive();
+            }
+            
+            this.hideModal();
+            
+        } catch (error) {
+            console.error('Auto-save failed:', error);
+            this.notificationManager.showNotification('❌', 'Auto-save failed. Changes will be lost if you close.', 'error');
+            // Still close the modal even if auto-save failed
+            this.hideModal();
+        }
+    }
+
     resetForm(hide) {
         document.getElementById('expense-form').reset();
         
@@ -1351,11 +1453,11 @@ class ExpenseFormManager {
         const saveBtnText = document.getElementById('modal-save-btn-text');
         
         if (type === 'expense') {
-            modalTitleText.innerHTML = `<span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>Edit Expense #${data.id}`;
-            saveBtnText.textContent = '💾 Update';
+            modalTitleText.innerHTML = `<span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>Edit Expense #${data.id}`;
+            saveBtnText.textContent = '💾';
         } else {
-            modalTitleText.innerHTML = `<span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>Confirm New Expense Draft`;
-            saveBtnText.textContent = '💾 Save Expense';
+            modalTitleText.innerHTML = `<span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Confirm New Expense Draft`;
+            saveBtnText.textContent = '💾';
         }
     }
     
@@ -1522,16 +1624,16 @@ class ModalManager {
         document.getElementById('delete-confirm-yes').addEventListener('click', this.handleDeleteConfirmationYes.bind(this));
         document.getElementById('delete-confirm-no').addEventListener('click', this.hideDeleteConfirmationOverlay.bind(this));
         
-        // Register modals with global manager
-        // Fixed code - ESC directly closes, click outside asks for confirmation:
-        this.globalModalManager.registerModal('edit-modal', () => expenseTracker.expenseForm.hideModal());
-
-        // Add click-outside-to-close functionality
+        // All close methods now use smart close
+        this.globalModalManager.registerModal('edit-modal', () => expenseTracker.expenseForm.smartClose());
+        
+        // Click outside to close with smart behavior
         document.getElementById('edit-modal').addEventListener('click', (e) => {
             if (e.target.id === 'edit-modal') {
-                this.showConfirmationOverlay();
+                expenseTracker.expenseForm.smartClose();
             }
         });
+        
         this.globalModalManager.registerModal('confirmation-overlay', () => this.hideConfirmationOverlay());
         this.globalModalManager.registerModal('delete-confirmation-overlay', () => this.hideDeleteConfirmationOverlay());
         this.globalModalManager.registerModal('all-items-modal', () => this.allItemsModal.hide());

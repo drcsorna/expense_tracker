@@ -193,14 +193,20 @@
     <!-- Edit Modal Overlay -->
     <div id="edit-modal" class="edit-modal-overlay">
         <div class="edit-modal-content">
+            <!-- Replace the existing edit-modal-header section with this: -->
             <div class="edit-modal-header">
-                <div>
-                    <h3 id="modal-title" class="text-lg font-semibold text-gray-900 flex items-center">
+                <div class="flex items-center">
+                    <h3 id="modal-title" class="text-sm font-medium text-gray-900 flex items-center">
                         <span id="modal-title-text" class="flex items-center"></span>
                     </h3>
-                    <p class="text-sm text-gray-600 mt-1">Edit or confirm expense details</p>
+                    <p class="text-xs text-gray-500 ml-2">Edit or confirm expense details</p>
                 </div>
-                <button class="edit-modal-close" onclick="expenseTracker.modalManager.showConfirmationOverlay()">×</button>
+                <div class="flex items-center gap-2">
+                    <button type="submit" form="expense-form" id="modal-save-btn" class="action-btn confirm" disabled>
+                        <span id="modal-save-btn-text">💾</span>
+                    </button>
+                    <button class="action-btn edit" onclick="expenseTracker.expenseForm.smartClose()">✕</button>
+                </div>
             </div>
             
             <div class="edit-modal-body">
@@ -311,16 +317,6 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Form Action Buttons -->
-                    <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-                        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-6 rounded-lg transition-colors font-medium" onclick="expenseTracker.modalManager.showConfirmationOverlay()">
-                            Cancel
-                        </button>
-                        <button type="submit" id="modal-save-btn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg transition-colors font-medium disabled:opacity-50">
-                            <span id="modal-save-btn-text">💾 Save</span>
-                        </button>
                     </div>
                 </form>
             </div>
