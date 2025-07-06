@@ -450,6 +450,16 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
     min-height: 48px;
 }
 
+.confirmation-modal-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 12px 12px 0 0;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
 .edit-modal-body {
     padding: 20px;
 }

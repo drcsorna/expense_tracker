@@ -193,7 +193,6 @@
     <!-- Edit Modal Overlay -->
     <div id="edit-modal" class="edit-modal-overlay">
         <div class="edit-modal-content">
-            <!-- Replace the existing edit-modal-header section with this: -->
             <div class="edit-modal-header">
                 <div class="flex items-center">
                     <h3 id="modal-title" class="text-sm font-medium text-gray-900 flex items-center">
@@ -202,8 +201,11 @@
                     <p class="text-xs text-gray-500 ml-2">Edit or confirm expense details</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button type="submit" form="expense-form" id="modal-save-btn" class="action-btn confirm" disabled>
-                        <span id="modal-save-btn-text">💾</span>
+                    <button type="submit" form="expense-form" id="modal-confirm-btn" class="action-btn confirm">
+                        ✅ Confirm
+                    </button>
+                    <button type="button" id="modal-dismiss-btn" class="action-btn delete" onclick="expenseTracker.expenseForm.confirmDismiss()">
+                        🗑️ Dismiss
                     </button>
                     <button class="action-btn edit" onclick="expenseTracker.expenseForm.smartClose()">✕</button>
                 </div>
@@ -429,27 +431,30 @@
     </div>
     
     <!-- Confirmation Modal -->
+    <!-- Replace the existing confirmation-overlay with this: -->
     <div id="confirmation-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1600] hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 transform transition-all duration-300">
-            <div class="flex items-center mb-4">
-                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                    <span class="text-red-600 text-lg">⚠️</span>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900">Confirm Action</h3>
-                    <p class="text-sm text-gray-600">This action cannot be undone</p>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-300">
+            <div class="confirmation-modal-header">
+                <div class="flex items-center">
+                    <h3 class="text-sm font-medium text-gray-900 flex items-center">
+                        <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                        Confirm Action
+                    </h3>
+                    <p class="text-xs text-gray-500 ml-2">This action cannot be undone</p>
                 </div>
             </div>
-            <p id="confirmation-message" class="text-gray-700 mb-6"></p>
-            <div class="flex space-x-3">
-                <button id="confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">Yes, close</button>
-                <button id="confirm-no" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg transition-colors font-medium">Cancel</button>
+            <div class="p-4">
+                <p id="confirmation-message" class="text-gray-700 mb-4"></p>
+                <div class="flex gap-2">
+                    <button id="confirm-yes" class="action-btn confirm flex-1">✅ Yes</button>
+                    <button id="confirm-no" class="action-btn edit flex-1">✕ Cancel</button>
+                </div>
             </div>
         </div>
     </div>
-    
+        
     <!-- Delete Confirmation Modal -->
-    <div id="delete-confirmation-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+    <div id="delete-confirmation-overlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1600] hidden">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 transform transition-all duration-300">
             <div class="flex items-center mb-4">
                 <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">

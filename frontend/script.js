@@ -147,6 +147,17 @@ class ApiService {
         return response.json();
     }
 
+    async deleteDraft(draftId) {
+        const response = await fetch(`./drafts/${draftId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(error);
+        }
+        return response.json();
+    }
+
     // Image Upload Operations
     uploadImages(files) {
         const formData = new FormData();
@@ -1265,6 +1276,43 @@ class ExpenseFormManager {
         saveBtn.style.opacity = validation.isValid ? '1' : '0.5';
     }
     
+    confirmDismiss() {
+        const form = document.getElementById('expense-form');
+        const draftId = form.draft_id.value;
+        const description = form.description.value || 'Untitled Draft';
+        
+        if (!draftId) {
+            this.smartClose();
+            return;
+        }
+        
+        // Use the existing delete confirmation modal
+        const message = `Are you sure you want to dismiss "${description}"? This action cannot be undone.`;
+        document.getElementById('delete-confirmation-message').textContent = message;
+        document.getElementById('delete-confirm-text').textContent = '🗑️ Dismiss';
+        document.getElementById('delete-confirmation-overlay').classList.remove('hidden');
+        
+        // Set up handlers
+        document.getElementById('delete-confirm-yes').onclick = () => this.executeDismiss(draftId);
+        document.getElementById('delete-confirm-no').onclick = () => {
+            document.getElementById('delete-confirmation-overlay').classList.add('hidden');
+        };
+    }
+    
+    async executeDismiss(draftId) {
+        try {
+            await this.apiService.deleteDraft(draftId);
+            document.getElementById('delete-confirmation-overlay').classList.add('hidden');
+            this.hideModal();
+            this.notificationManager.showNotification('🗑️', 'Draft dismissed successfully', 'success');
+            await expenseTracker.draftManager.loadDrafts();
+        } catch (error) {
+            console.error('Dismiss failed:', error);
+            this.notificationManager.showNotification('❌', `Failed to dismiss draft: ${error.message}`, 'error');
+            document.getElementById('delete-confirmation-overlay').classList.add('hidden');
+        }
+    }
+
     setDefaultDate() { 
         document.getElementById('date').value = new Date().toISOString().split('T')[0]; 
     }
@@ -1368,7 +1416,7 @@ class ExpenseFormManager {
         // Initial state check
         setTimeout(() => this.updateSaveButtonState(), 100);
     }
-    
+
     markAsChanged() {
         this.hasUnsavedChanges = true;
     }
@@ -1450,14 +1498,17 @@ class ExpenseFormManager {
     
     updateFormTitleAndButton(data, type) {
         const modalTitleText = document.getElementById('modal-title-text');
-        const saveBtnText = document.getElementById('modal-save-btn-text');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        const dismissBtn = document.getElementById('modal-dismiss-btn');
         
         if (type === 'expense') {
             modalTitleText.innerHTML = `<span class="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>Edit Expense #${data.id}`;
-            saveBtnText.textContent = '💾';
+            confirmBtn.textContent = '💾 Update';
+            dismissBtn.style.display = 'none'; // Hide dismiss for expenses
         } else {
             modalTitleText.innerHTML = `<span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Confirm New Expense Draft`;
-            saveBtnText.textContent = '💾';
+            confirmBtn.textContent = '✅ Confirm';
+            dismissBtn.style.display = 'inline-flex'; // Show dismiss for drafts
         }
     }
     
@@ -1472,16 +1523,16 @@ class ExpenseFormManager {
         }
         
         const form = e.target;
-        const submitBtn = document.getElementById('modal-save-btn');
+        const submitBtn = document.getElementById('modal-confirm-btn');
         const originalText = submitBtn.innerHTML;
         this.appState.isFormSubmitting = true;
         submitBtn.disabled = true; 
-        submitBtn.innerHTML = '<span class="spinner mr-2"></span>Saving...';
+        submitBtn.innerHTML = '<span class="spinner mr-1"></span>Saving...';
         
         const expenseId = form.expense_id.value;
         const draftId = form.draft_id.value;
         const formData = new FormData(form);
-
+    
         try {
             if (expenseId) {
                 await this.apiService.updateExpense(expenseId, formData);
@@ -1492,7 +1543,6 @@ class ExpenseFormManager {
                     this.notificationManager.showNotification('✅', 'Draft confirmed and saved as expense!', 'success');
                     await expenseTracker.draftManager.loadDrafts();
                 } else {
-                    // If confirmation failed due to validation, the draft will have error state
                     this.notificationManager.showNotification('⚠️', 'Draft has validation errors and remains for fixing.', 'warning');
                     await expenseTracker.draftManager.loadDrafts();
                 }
@@ -1500,7 +1550,7 @@ class ExpenseFormManager {
             
             this.resetForm(true);
             await expenseTracker.expenseList.loadLastFive();
-
+    
         } catch (error) { 
             console.error('Form submit error:', error);
             this.notificationManager.showNotification('❌', `Failed to save expense: ${error.message}`, 'error'); 
