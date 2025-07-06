@@ -1332,8 +1332,8 @@ class ExpenseFormManager {
         const modal = document.getElementById('edit-modal');
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        expenseTracker.modalManager.globalModalManager.registerModal('edit-modal', () => expenseTracker.modalManager.showConfirmationOverlay());
-    }
+        // Fixed code:
+        expenseTracker.modalManager.globalModalManager.registerModal('edit-modal', () => this.hideModal());    }
 
     hideModal() {
         const modal = document.getElementById('edit-modal');
@@ -1523,7 +1523,15 @@ class ModalManager {
         document.getElementById('delete-confirm-no').addEventListener('click', this.hideDeleteConfirmationOverlay.bind(this));
         
         // Register modals with global manager
-        this.globalModalManager.registerModal('edit-modal', () => this.showConfirmationOverlay());
+        // Fixed code - ESC directly closes, click outside asks for confirmation:
+        this.globalModalManager.registerModal('edit-modal', () => expenseTracker.expenseForm.hideModal());
+
+        // Add click-outside-to-close functionality
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'edit-modal') {
+                this.showConfirmationOverlay();
+            }
+        });
         this.globalModalManager.registerModal('confirmation-overlay', () => this.hideConfirmationOverlay());
         this.globalModalManager.registerModal('delete-confirmation-overlay', () => this.hideDeleteConfirmationOverlay());
         this.globalModalManager.registerModal('all-items-modal', () => this.allItemsModal.hide());
