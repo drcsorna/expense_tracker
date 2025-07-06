@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import List
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Response
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from .config import config
 from .database import DatabaseManager
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(title="Expense Tracker")
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Initialize service instances
 db_manager = DatabaseManager(config.DB_FILE)

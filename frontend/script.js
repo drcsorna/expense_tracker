@@ -1267,14 +1267,6 @@ class ExpenseFormManager {
     setupEventListeners() {
         document.getElementById('expense-form').addEventListener('submit', this.handleFormSubmit.bind(this));
     }
-
-    updateSaveButtonState() {
-        const saveBtn = document.getElementById('modal-save-btn');
-        const validation = this.formValidation.validateForm();
-        
-        saveBtn.disabled = !validation.isValid;
-        saveBtn.style.opacity = validation.isValid ? '1' : '0.5';
-    }
     
     confirmDismiss() {
         const form = document.getElementById('expense-form');
@@ -1395,26 +1387,16 @@ class ExpenseFormManager {
         const inputs = form.querySelectorAll('input, select, textarea');
         
         inputs.forEach(input => {
-            input.addEventListener('input', () => {
-                this.markAsChanged();
-                this.updateSaveButtonState();
-            });
-            input.addEventListener('change', () => {
-                this.markAsChanged();
-                this.updateSaveButtonState();
-            });
+            input.addEventListener('input', () => this.markAsChanged());
+            input.addEventListener('change', () => this.markAsChanged());
         });
         
-        // Track category and radio changes
+        // Listen for category and person selection changes
         document.addEventListener('click', (e) => {
             if (e.target.closest('.category-option') || e.target.closest('.segmented-option')) {
                 this.markAsChanged();
-                this.updateSaveButtonState();
             }
         });
-        
-        // Initial state check
-        setTimeout(() => this.updateSaveButtonState(), 100);
     }
 
     markAsChanged() {
