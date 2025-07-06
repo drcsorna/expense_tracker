@@ -552,6 +552,7 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
  * AI CONTEXT: Click-to-expand functionality for receipt images.
  * Provides immersive viewing experience with backdrop blur.
  */
+/* Image Overlay for Full-Screen Image Viewing */
 .image-overlay {
     position: fixed;
     top: 0;
@@ -562,7 +563,7 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1050;
+    z-index: 1600; /* FIXED: Higher than edit modal (1500) */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
@@ -582,10 +583,17 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
     border-radius: 12px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     padding: 20px;
+    max-width: 90vw; /* FIXED: Prevent content from exceeding viewport */
+    max-height: 90vh;
 }
 
 .image-overlay img {
     display: block;
+    max-width: 85vw; /* FIXED: Constrain to viewport width */
+    max-height: 80vh; /* FIXED: Constrain to viewport height */
+    width: auto;
+    height: auto;
+    object-fit: contain; /* FIXED: Maintain aspect ratio */
 }
 
 .image-overlay-close {
