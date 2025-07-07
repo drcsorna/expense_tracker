@@ -49,6 +49,39 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
  * AI CONTEXT: Used for person/beneficiary selection with sliding animation.
  * Provides visual feedback and modern interaction patterns.
  */
+
+
+
+/* Dynamic Grid Layout for Item Lists */
+.item-details-grid {
+    display: grid;
+    grid-template-columns: var(--grid-columns, 1fr);
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.item-details-grid > span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.grid-amount {
+    font-weight: 600;
+    color: #1e40af;
+    text-align: right;
+}
+
+.grid-category {
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+}
+
 .segmented-control {
     display: inline-flex;
     background-color: #f1f5f9;

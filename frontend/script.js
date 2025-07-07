@@ -214,6 +214,49 @@ class ApiService {
     }
 }
 
+
+function calculateDynamicWidths(items) {
+    if (!items || items.length === 0) return null;
+    
+    const maxWidths = {
+        amount: 0,
+        category: 0,
+        person: 0,
+        beneficiary: 0
+    };
+    
+    items.forEach(item => {
+        const amountText = `€${parseFloat(item.amount).toFixed(2)} ${item.currency}`;
+        maxWidths.amount = Math.max(maxWidths.amount, amountText.length);
+        maxWidths.category = Math.max(maxWidths.category, (item.category || '').length);
+        maxWidths.person = Math.max(maxWidths.person, (item.person || '').length);
+        maxWidths.beneficiary = Math.max(maxWidths.beneficiary, (item.beneficiary || '').length);
+    });
+    
+    // Convert to pixel widths (approximate 8px per character)
+    const gridColumns = [
+        `${Math.max(maxWidths.amount * 8, 100)}px`,  // min 100px for amount
+        `${Math.max(maxWidths.category * 8, 80)}px`, // min 80px for category
+        '110px',  // fixed for date
+        `${Math.max(maxWidths.person * 8, 60)}px`,   // min 60px for person
+        `${maxWidths.beneficiary > 0 ? Math.max(maxWidths.beneficiary * 8, 80) : 80}px`, // beneficiary
+        '30px'    // picture icon
+    ].join(' ');
+    
+    return gridColumns;
+}
+
+function applyDynamicGrid(containerSelector, items) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+    
+    const gridColumns = calculateDynamicWidths(items);
+    if (gridColumns) {
+        container.style.setProperty('--grid-columns', gridColumns);
+    }
+}
+
+
 // ============================================================================
 // NOTIFICATION MANAGER
 // ============================================================================
@@ -1435,11 +1478,17 @@ class ExpenseFormManager {
             
             this.hideModal();
             
+            // Add this line to refresh main page content after auto-save
+            await expenseTracker.refreshMainPageContent();
+            
         } catch (error) {
             console.error('Auto-save failed:', error);
             this.notificationManager.showNotification('❌', 'Auto-save failed. Changes will be lost if you close.', 'error');
             // Still close the modal even if auto-save failed
             this.hideModal();
+            
+            // Still refresh even if auto-save failed
+            await expenseTracker.refreshMainPageContent();
         }
     }
 
@@ -1479,6 +1528,9 @@ class ExpenseFormManager {
         expenseTracker.draftManager.stopAutoSave();
         
         expenseTracker.modalManager.globalModalManager.unregisterModal('edit-modal');
+        
+        // Add this line to refresh main page content
+        expenseTracker.refreshMainPageContent();
     }
     
     updateFormTitleAndButton(data, type) {
@@ -1522,14 +1574,15 @@ class ExpenseFormManager {
             if (expenseId) {
                 await this.apiService.updateExpense(expenseId, formData);
                 this.notificationManager.showNotification('✅', 'Expense updated successfully!', 'success');
+                await expenseTracker.refreshMainPageContent(); 
             } else if (draftId) {
                 const result = await this.apiService.confirmDraft(draftId, formData);
                 if (result.success) {
                     this.notificationManager.showNotification('✅', 'Draft confirmed and saved as expense!', 'success');
-                    await expenseTracker.draftManager.loadDrafts();
+                    await expenseTracker.refreshMainPageContent();await expenseTracker.refreshMainPageContent();
                 } else {
                     this.notificationManager.showNotification('⚠️', 'Draft has validation errors and remains for fixing.', 'warning');
-                    await expenseTracker.draftManager.loadDrafts();
+                    await expenseTracker.refreshMainPageContent();
                 }
             }
             
@@ -1854,6 +1907,10 @@ class ExpenseListManager {
         
         const lastFive = allEntries.slice(0, 5);
         list.innerHTML = lastFive.map(exp => this.renderExpenseItem(exp)).join('');
+        
+        // Apply dynamic grid layout
+        applyDynamicGrid('#expenses-list', lastFive);
+        
         this.updateBulkActions();
     }
 
@@ -1880,26 +1937,24 @@ class ExpenseListManager {
                 <div class="item-selector" onclick="expenseTracker.bulkManager.toggleExpenseSelection(${exp.id}, event)">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
                 </div>
-                <div class="flex items-center gap-3" onclick="expenseTracker.expenseList.editExpense(${exp.id})">
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900 text-sm">${exp.description || 'No description'}</p>
-                        <div class="flex items-center flex-wrap gap-x-2 gap-y-1 text-xs text-gray-600 mt-1">
-                            <span class="font-semibold text-blue-700">${parseFloat(exp.amount).toFixed(2)} ${exp.currency}</span>
-                            ${exp.currency !== 'EUR' ? `<span class="text-gray-500">(€${parseFloat(exp.amount_eur).toFixed(2)})</span>` : ''}
-                            <span class="bg-gray-100 px-1.5 py-0.5 rounded-full">${exp.category}</span>
-                            <span>📅 ${exp.date}</span>
-                            <span>👤 ${exp.person}</span>
-                            ${exp.beneficiary ? `<span>🎯 ${exp.beneficiary}</span>` : ''}
-                            ${exp.has_image ? '<span title="Image attached">📷</span>' : ''}
-                        </div>
-                    </div>
-                    <div class="expense-actions item-actions" onclick="event.stopPropagation()">
-                        <button class="action-btn edit" onclick="expenseTracker.expenseList.editExpense(${exp.id})">✏️ Edit</button>
-                        <button class="action-btn history" onclick="expenseTracker.auditManager.showAuditHistory(${exp.id})">📋 History</button>
-                        <button class="action-btn delete" onclick="expenseTracker.modalManager.confirmIndividualDelete(${exp.id}, '${(exp.description || '').replace(/'/g, "\\'")}')">🗑️ Delete</button>
+                <div class="flex-1" onclick="expenseTracker.expenseList.editExpense(${exp.id})">
+                    <p class="font-medium text-gray-900 text-sm">${exp.description || 'No description'}</p>
+                    <div class="item-details-grid">
+                        <span class="grid-amount">€${parseFloat(exp.amount).toFixed(2)} ${exp.currency}</span>
+                        <span class="grid-category">${exp.category}</span>
+                        <span>📅 ${exp.date}</span>
+                        <span>👤 ${exp.person}</span>
+                        <span>${exp.beneficiary ? `🎯 ${exp.beneficiary}` : ''}</span>
+                        <span>${exp.has_image ? '📷' : ''}</span>
                     </div>
                 </div>
-            </div>`;
+                <div class="item-actions expense-actions">
+                    <button class="action-btn edit" onclick="expenseTracker.expenseList.editExpense(${exp.id}); event.stopPropagation();" title="Edit expense">Edit</button>
+                    <button class="action-btn history" onclick="expenseTracker.expenseList.showExpenseHistory(${exp.id}); event.stopPropagation();" title="View history">History</button>
+                    <button class="action-btn delete" onclick="expenseTracker.expenseList.deleteExpense(${exp.id}); event.stopPropagation();" title="Delete expense">Delete</button>
+                </div>
+            </div>
+        `;
     }
     
     async editExpense(id) {
@@ -2370,8 +2425,30 @@ class ExpenseTrackerApp {
             this.notificationManager.showNotification('❌', 'Failed to initialize application', 'error');
         }
     }
-}
 
+    async refreshMainPageContent() {
+        try {
+            // Refresh drafts section
+            if (this.draftManager) {
+                await this.draftManager.loadDrafts();
+            }
+            
+            // Refresh expenses list
+            if (this.expenseList) {
+                await this.expenseList.loadLastFive();
+            }
+            
+            // Refresh all items modal if it's open
+            if (this.allItemsModal && document.getElementById('all-items-modal').classList.contains('active')) {
+                await this.allItemsModal.loadAllItems();
+            }
+            
+        } catch (error) {
+            console.error('Failed to refresh main page content:', error);
+            this.notificationManager.showNotification('⚠️', 'Failed to refresh content', 'error');
+        }
+    }
+}
 // ============================================================================
 // APPLICATION INITIALIZATION
 // ============================================================================
