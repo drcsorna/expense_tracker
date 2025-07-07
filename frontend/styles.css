@@ -553,7 +553,14 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
  * Provides immersive viewing experience with backdrop blur.
  */
 /* Image Overlay for Full-Screen Image Viewing */
-.image-overlay {
+/**
+ * Image Overlay for Full-Screen Image Viewing - FINAL FIX
+ * 
+ * FIXES:
+ * 1. Z-index conflict: Image overlay now 1700 (above confirmation modal's 1600)
+ * 2. Image sizing: Proper constraints to fit screen while maintaining aspect ratio
+ */
+ .image-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -563,7 +570,7 @@ COMPATIBILITY: Modern browsers (Chrome 80+, Firefox 75+, Safari 13+)
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1600; /* FIXED: Higher than edit modal (1500) */
+    z-index: 1700; /* FIXED: Higher than confirmation modal (1600) and edit modal (1500) */
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
